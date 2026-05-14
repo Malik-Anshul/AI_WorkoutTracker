@@ -12,12 +12,13 @@ from services.coaching.llm import LLMCoach
 from services.coaching.tts import TextToSpeech
 from services.coaching.voice_pipeline import VoicePipeline, autoplay_audio
 from groq import Groq
+from dotenv import load_dotenv
 import os
 import time
 import pandas as pd
 
 
-
+load_dotenv()
 def main():
     st.set_page_config(
         page_icon="🏋️",
@@ -42,8 +43,6 @@ def main():
 
             if not api_key and hasattr(st, "secrets") and "GROQ_API_KEY" in st.secrets:
                 api_key = st.secrets["GROQ_API_KEY"]
-
-            print(api_key)
             
             groq_client = Groq(api_key=api_key)
             llm_coach = LLMCoach(groq_client)
@@ -52,7 +51,11 @@ def main():
         except Exception as e:
             st.session_state.voice_pipeline = None
 
-    workout_started = st.session_state.get("workout_started")
+        except Exception as e:
+            st.session_state.voice_pipeline = None
+
+
+    workout_started = st.session_state.get("workout_started", False)
 
     with st.sidebar:
         st.title("🏋️ Apna AI Coach")
@@ -83,8 +86,6 @@ def main():
                 st.session_state.workout_started = True
                 st.session_state.set_cycle_started_at = time.time()
                 st.session_state.last_saved_sets_completed = 0
-                st.session_state.last_notified_sets_completed = 0
-                st.session_state.last_notified_workout_complete = False
 
                 if st.session_state.voice_pipeline:
                     result = st.session_state.voice_pipeline.process_event(
@@ -96,13 +97,15 @@ def main():
                     if result:
                         st.session_state.audio_to_play, st.session_state.coach_feedback = result
 
+                st.session_state.last_notified_sets_completed = 0
+                st.session_state.last_notified_workout_complete = False
+
                 st.rerun()
         else:
-            exercise = st.session_state.get('plan_exercise')
-            sets = st.session_state.get('plan_sets')
-            reps = st.session_state.get('plan_reps')
+            exercise = st.session_state.get("exercise_type")
+            sets = st.session_state.get("target_sets")
+            reps = st.session_state.get("reps_per_set")
 
-            print(exercise, sets, reps)
             st.info(f"**{exercise}** -- {sets} Sets / {reps} Reps")
 
             st.space()
@@ -219,7 +222,7 @@ def main():
         )
     else:
         context = webrtc_streamer(
-            key="exercise_analysis",
+            key="exercise-analysis",
             mode = WebRtcMode.SENDRECV,
             video_processor_factory = VideoProcessorClass,
             rtc_configuration={"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]},

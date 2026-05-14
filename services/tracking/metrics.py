@@ -1,7 +1,8 @@
 import streamlit as st
 import time
-from services.persistence.exercise_repository import add_exercise
 from services.config.workout_config import METRICS_FIELDS
+from services.persistence.exercise_repository import add_exercise
+
 
 def sync_metrics_update(context):
     if not context or not hasattr(context, "state") or not context.state.playing:
@@ -10,7 +11,7 @@ def sync_metrics_update(context):
     processor = getattr(context, "video_processor", None)
 
     if not processor:
-        return
+        return 
     
     exercise = st.session_state.get("exercise_type")
 
@@ -22,15 +23,19 @@ def sync_metrics_update(context):
 
     if not latest_metrics:
         return
-
+    
     reps = latest_metrics.get("reps", 0)
+
+    if reps is None:
+        reps = 0
+        
     st.session_state.reps = reps
 
     fields = METRICS_FIELDS.get(exercise)
 
     if not fields:
-        return
-    
+        return 
+
     for key, default in fields.items():
         st.session_state[key] = latest_metrics.get(key, default)
 
@@ -73,7 +78,6 @@ def sync_metrics_update(context):
 
         st.session_state.set_cycle_started_at = now_ts
         st.session_state.last_saved_sets_completed = sets_completed
-
 
     if workout_completed and not st.session_state.get("last_notified_workout_complete", False):
         st.session_state.last_notified_workout_complete = True

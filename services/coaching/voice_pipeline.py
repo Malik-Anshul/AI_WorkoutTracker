@@ -64,6 +64,8 @@ class VoicePipeline:
         return None
 
     def process_event(self, event, exercise, metrics):
+        print("PROCESS EVENT CALLED:", event)
+
         issue = self._find_form_issue(exercise, metrics)
 
         now = time.time()
