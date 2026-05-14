@@ -4,15 +4,26 @@ __pycache__/
 
 # Virtual environment
 venv/
-.env/
+.env
 
 # OS files
 .DS_Store
 Thumbs.db
 
 # Database
-Main App/data.db
+*.db
+
+# Streamlit
+.streamlit/secrets.toml
 
 # Logs
 *.log
-data.db
+
+# IDE
+.vscode/
+.idea/
+
+# ML models
+*.task
+*.onnx
+*.pt
