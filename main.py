@@ -1,6 +1,6 @@
 import streamlit as st
 from services.auth.login_wall import render_login_wall
-from services.state.session_defaults import inital_session_dafaults
+from services.state.session_defaults import initial_session_defaults
 from services.config.workout_config import EXERCISE_OPTIONS
 from services.ui.style_loader import load_css, inject_local_font, inject_webrtc_styles
 from services.persistence.exercise_repository import init_db
@@ -8,6 +8,10 @@ from streamlit_webrtc import webrtc_streamer, WebRtcMode
 from services.vision.exercise_video_processor import VideoProcessorClass
 from services.tracking.metrics import sync_metrics_update
 from services.persistence.exercise_repository import get_user_exercise
+from services.coaching.llm import LLMCoach
+from services.coaching.tts import TextToSpeech
+from services.coaching.voice_pipeline import VoicePipeline, autoplay_audio
+from groq import Groq
 import os
 import time
 import pandas as pd
@@ -30,7 +34,23 @@ def main():
     if not render_login_wall():
         return
     
-    inital_session_dafaults()
+    initial_session_defaults()
+
+    if "voice_pipeline" not in st.session_state:
+        try:
+            api_key = os.environ.get("GROQ_API_KEY", "")
+
+            if not api_key and hasattr(st, "secrets") and "GROQ_API_KEY" in st.secrets:
+                api_key = st.secrets["GROQ_API_KEY"]
+
+            print(api_key)
+            
+            groq_client = Groq(api_key=api_key)
+            llm_coach = LLMCoach(groq_client)
+            tts = TextToSpeech()
+            st.session_state.voice_pipeline = VoicePipeline(llm_coach, tts)
+        except Exception as e:
+            st.session_state.voice_pipeline = None
 
     workout_started = st.session_state.get("workout_started")
 
@@ -66,6 +86,16 @@ def main():
                 st.session_state.last_notified_sets_completed = 0
                 st.session_state.last_notified_workout_complete = False
 
+                if st.session_state.voice_pipeline:
+                    result = st.session_state.voice_pipeline.process_event(
+                        event="workout_started",
+                        exercise=plan_exercise,
+                        metrics={}
+                    )
+                    
+                    if result:
+                        st.session_state.audio_to_play, st.session_state.coach_feedback = result
+
                 st.rerun()
         else:
             exercise = st.session_state.get('plan_exercise')
@@ -82,6 +112,16 @@ def main():
 
             if end_session_button:
                 st.session_state.workout_started = False
+
+                if st.session_state.voice_pipeline:
+                    result = st.session_state.voice_pipeline.process_event(
+                        event="workout_completed",
+                        exercise=exercise,
+                        metrics={}
+                    )
+                    if result:
+                        st.session_state.audio_to_play, st.session_state.coach_feedback = result
+
                 st.rerun()
         
         if workout_started:
@@ -147,6 +187,13 @@ def main():
                 </p>
             """, unsafe_allow_html=True,
     )
+
+    if st.session_state.get("audio_to_play"):
+        autoplay_audio(st.session_state.audio_to_play)
+
+    if st.session_state.get("coach_feedback"):
+        st.markdown("")
+        st.success(f"🤖 **Coach:** {st.session_state.coach_feedback}")
 
 
     if not workout_started:

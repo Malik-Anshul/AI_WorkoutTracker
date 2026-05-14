@@ -1,5 +1,6 @@
-from io import BytesIO 
+from io import BytesIO
 from gtts import gTTS
+
 
 class TextToSpeech:
     def speak(self, text, lang="en"):
@@ -11,7 +12,8 @@ class TextToSpeech:
         buffer = BytesIO()
 
         gTTS(text=cleaned, lang=lang).write_to_fp(buffer)
+
         buffer.seek(0)
 
         return buffer.read()
-        
+    

@@ -1,6 +1,6 @@
 import streamlit as st
 
-def inital_session_dafaults():
+def initial_session_defaults():
     defaults = {
         "reps": 0,
         "target_sets": 0,

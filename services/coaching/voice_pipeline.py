@@ -6,12 +6,12 @@ class VoicePipeline:
     def __init__(self, llm, tts):
         self.llm = llm
         self.tts = tts
-        self.last_option_at = 0
+        self.last_spoken_at = 0
 
     def _find_form_issue(self, exercise, metrics):
         if "issue" in metrics:
             return metrics["issue"]
-        
+
         if exercise == "Squats":
             depth = metrics.get("depth_status", "")
             back_angle = metrics.get("back_angle", 180)
@@ -74,21 +74,21 @@ class VoicePipeline:
             if not issue:
                 return None
             
-            if now - self.last_option_at < 5:
+            if now - self.last_spoken_at < 5:
                 return None
             
-
         text = self.llm.give_feedback(event, issue)
         voice = self.tts.speak(text)
 
-        self.last_option_at = now
+        self.last_spoken_at = now
 
-        return text, voice
+        return voice, text
+    
 
-    def autoplay_audio(audio_bytes):
-        if not audio_bytes:
-            return
-        
-        st.markdown("<style>[data-testid='stAudio'] {display: none;}</style>", unsafe_allow_html=True)
-        
-        st.audio(audio_bytes, format="audio/mp3", autoplay=True)
+def autoplay_audio(audio_bytes):
+    if not audio_bytes:
+        return
+    
+    st.markdown("<style>[data-testid='stAudio'] {display: none;}</style>", unsafe_allow_html=True)
+    
+    st.audio(audio_bytes, format="audio/mp3", autoplay=True)

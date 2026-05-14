@@ -225,6 +225,12 @@ class VideoProcessorClass(VideoProcessorBase):
         else:
             self._draw_no_pose_warnings(image)
 
+            with self._lock:
+                if self._latest_metrics is not None:
+                    self._latest_metrics["pose_detected"] = False
+                else:
+                    self._latest_metrics = {"pose_detected": False}
+
         return av.VideoFrame.from_ndarray(image, format="bgr24")
 
 
