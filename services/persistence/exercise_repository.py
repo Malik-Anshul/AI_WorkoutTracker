@@ -20,7 +20,7 @@ def init_db():
             CREATE TABLE IF NOT EXISTS users(
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 username TEXT UNIQUE NOT NULL,
-                creted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """)
 
@@ -61,7 +61,7 @@ def get_or_create_user(username):
     
     return user
 
-def add_exercise(user_id, exercise_name, reps, sets, time):
+def add_exercise(user_id, exercise_name, sets, reps, time):
     conn = _get_connection()
 
     
