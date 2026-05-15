@@ -1,4 +1,11 @@
+
+
 libgl1
 libglib2.0-0t64
 libsm6
+<<<<<<< HEAD
 libxext6
+=======
+libxext6
+ffmpeg
+>>>>>>> dafd7a87311c54a0c57cc7f054f2e6165c580267
