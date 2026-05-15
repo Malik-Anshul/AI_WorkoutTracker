@@ -29,7 +29,7 @@ def main():
     
     st.markdown("""
         <style>
-                #MainMenu, footer, header {
+                #MainMenu, footer {
                     visibility: hidden
                 }
 
@@ -39,6 +39,7 @@ def main():
         </style>
             """, unsafe_allow_html=True
         )
+    
     
     load_css(os.path.join(os.getcwd(), "static", "style.css"))
     inject_local_font(os.path.join(os.getcwd(), "static", "AdobeClean.otf"), "AdobeClean")
