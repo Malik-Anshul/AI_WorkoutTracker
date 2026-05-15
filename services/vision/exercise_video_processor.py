@@ -1,7 +1,7 @@
 import os
 import threading
-import av
 import cv2
+import av
 import numpy as np
 import mediapipe as mp
 from streamlit_webrtc import VideoProcessorBase
