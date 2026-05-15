@@ -27,6 +27,19 @@ def main():
         layout="centered"
         )
     
+    st.markdown("""
+        <style>
+                #MainMenu, footer, header {
+                    visibility: hidden
+                }
+
+                .block-container{
+                    padding-top: 1.5rem !important
+                }
+        </style>
+            """, unsafe_allow_html=True
+        )
+    
     load_css(os.path.join(os.getcwd(), "static", "style.css"))
     inject_local_font(os.path.join(os.getcwd(), "static", "AdobeClean.otf"), "AdobeClean")
 

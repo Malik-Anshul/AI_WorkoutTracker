@@ -6,6 +6,8 @@ def render_login_wall():
         st.header(f"Hello {st.session_state.get('username')}'s AI")
         return True
     
+    
+    
     st.title("🏋️ AI Real-Time GYM Trainer")
     st.markdown("### Welcome! Please enter a username to start")
 
